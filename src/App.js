@@ -1,56 +1,82 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
-
+import React, { useState } from "react";
+import axios from "axios";
+import "./index.css";
 function App() {
+  const [data, setData] = useState({});
+
+  const [location, setLocation] = useState("");
+
+  const WeatherAPIKey = "1e242ed05608f990236442891ebc0137";
+
+  const url =
+    "http://api.openweathermap.org/data/2.5/weather?q=" +
+    location +
+    "&units=imperial&appid=" +
+    WeatherAPIKey;
+  const searchLocation = (event) => {
+    if (event.key === "Enter") {
+      axios
+        .get(url)
+        .then((response) => {
+          setData(response.data);
+          console.log(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      setLocation("");
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
+      <div className="search">
+        <input
+          value={location}
+          onChange={(event) => setLocation(event.target.value)}
+          placeholder="Enter Location"
+          onKeyPress={searchLocation}
+          type="text"
+        />
+      </div>
+
+      <div className="container">
+        <div className="top">
+          <div className="location">
+            <p>{data.name}</p>
+          </div>
+          <div className="temp">
+            {data.main ? <h1>{data.main.temp.toFixed()}°F</h1> : null}
+          </div>
+          <div className="description">
+            {data.weather ? <p>{data.weather[0].main}</p> : null}
+          </div>
+        </div>
+        {data.name != undefined && (
+          <div className="bottom">
+            <div className="feels">
+              {data.main ? (
+                <p className="bold">{data.main.feels_like.toFixed()}°F</p>
+              ) : null}
+
+              <p>Feels Like</p>
+            </div>
+            <div className="humidity">
+              {data.main ? (
+                <p className="bold">{data.main.humidity.toFixed()}% </p>
+              ) : null}
+              <p>Humidity</p>
+            </div>
+            <div className="wind">
+              {data.wind ? (
+                <p className="bold">{data.wind.speed.toFixed()}MPH</p>
+              ) : null}
+
+              <p>Wind Speed</p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
